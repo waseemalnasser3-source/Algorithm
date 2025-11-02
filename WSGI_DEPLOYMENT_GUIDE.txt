@@ -1,0 +1,199 @@
+===============================================================================
+PythonAnywhere WSGI Configuration Guide
+Genetic Algorithm Feature Selection Project
+===============================================================================
+
+STEP 1: Upload All Project Files
+---------------------------------
+Make sure ALL the following folders are uploaded to:
+/home/mariana110195/genetic-feature-selection/
+
+Required folders and files:
+- web/
+  - __init__.py
+  - routes.py
+  - templates/
+  - static/
+- genetic_algorithm/
+  - __init__.py
+  - ga_engine.py
+  - chromosome.py
+  - fitness.py
+  - operators.py
+- data_processing/
+  - __init__.py
+  - loader.py
+  - preprocessor.py
+  - validator.py
+- comparison/
+  - __init__.py
+  - traditional_methods.py
+  - statistical_analysis.py
+- models/
+  - __init__.py
+  - evaluator.py
+  - metrics.py
+  - ml_models.py
+- sample_datasets/
+- uploads/
+- results/
+
+
+STEP 2: Verify Files on PythonAnywhere
+---------------------------------------
+Open a Bash console on PythonAnywhere and run:
+
+cd /home/mariana110195/genetic-feature-selection
+ls -la
+
+You should see all folders listed above.
+
+Check if __init__.py exists in all module folders:
+ls -la comparison/
+ls -la web/
+ls -la genetic_algorithm/
+ls -la data_processing/
+ls -la models/
+
+
+STEP 3: Configure WSGI File
+----------------------------
+Go to Web tab > WSGI configuration file (blue link)
+Delete ALL existing content and paste EXACTLY this:
+
+---START OF WSGI FILE---
+
+import sys
+import os
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Project directory
+project_home = '/home/mariana110195/genetic-feature-selection'
+
+# Add to Python path
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+    logger.info(f"Added {project_home} to Python path")
+
+# Change working directory
+try:
+    os.chdir(project_home)
+    logger.info(f"Changed working directory to: {os.getcwd()}")
+except Exception as e:
+    logger.error(f"Failed to change directory: {e}")
+
+# Create directories
+directories = ['uploads', 'results', 'results/experiments']
+for directory in directories:
+    dir_path = os.path.join(project_home, directory)
+    try:
+        os.makedirs(dir_path, exist_ok=True)
+        os.chmod(dir_path, 0o755)
+        logger.info(f"Directory ready: {directory}")
+    except Exception as e:
+        logger.warning(f"Directory creation failed for {directory}: {e}")
+
+# Import Flask app
+try:
+    from web import create_app
+    application = create_app()
+    logger.info("Flask application loaded successfully")
+    logger.info(f"Static folder: {application.static_folder}")
+    logger.info(f"Template folder: {application.template_folder}")
+except Exception as e:
+    logger.error(f"Failed to load Flask application: {e}")
+    import traceback
+    logger.error(traceback.format_exc())
+    raise
+
+# Debug info
+logger.info("=" * 50)
+logger.info("WSGI Configuration Summary:")
+logger.info(f"  Python version: {sys.version}")
+logger.info(f"  Working directory: {os.getcwd()}")
+logger.info(f"  Project home: {project_home}")
+logger.info(f"  Python path: {sys.path[:3]}")
+logger.info("=" * 50)
+
+---END OF WSGI FILE---
+
+
+STEP 4: Install Requirements
+-----------------------------
+In PythonAnywhere Bash console:
+
+cd /home/mariana110195/genetic-feature-selection
+pip3.10 install --user -r requirements.txt
+
+(Use the Python version matching your web app configuration)
+
+
+STEP 5: Set Python Version
+---------------------------
+In Web tab:
+- Make sure Python version is 3.10 or higher
+- Source code: /home/mariana110195/genetic-feature-selection
+- Working directory: /home/mariana110195/genetic-feature-selection
+
+
+STEP 6: Reload Web App
+-----------------------
+Click the green "Reload" button in Web tab
+
+
+STEP 7: Check Error Log
+------------------------
+If errors occur, click "Log files" > "Error log"
+Look for specific module import errors
+
+
+TROUBLESHOOTING
+---------------
+
+Error: "No module named 'comparison'"
+Solution: 
+1. Check if comparison/__init__.py exists
+2. Run: ls -la /home/mariana110195/genetic-feature-selection/comparison/
+3. Make sure __init__.py is present
+
+Error: "cannot import name 'create_app'"
+Solution:
+1. Check if web/__init__.py exists
+2. Verify content matches the local version
+
+Error: "FileNotFoundError"
+Solution:
+1. Verify project path is exactly: /home/mariana110195/genetic-feature-selection
+2. No typos or extra spaces
+
+Error: "No module named 'sklearn'" or similar
+Solution:
+1. Install requirements: pip3.10 install --user scikit-learn pandas numpy flask
+
+
+VERIFICATION COMMANDS
+---------------------
+Run these in PythonAnywhere Bash console:
+
+# Check Python version
+python3 --version
+
+# Check installed packages
+pip3 list | grep -i scikit
+pip3 list | grep -i flask
+pip3 list | grep -i pandas
+
+# Test imports manually
+cd /home/mariana110195/genetic-feature-selection
+python3 -c "from web import create_app; print('Success')"
+python3 -c "from comparison.traditional_methods import TraditionalFeatureSelection; print('Success')"
+
+===============================================================================
+
