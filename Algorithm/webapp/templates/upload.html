@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data - SmartSelect AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-section {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-header h1 {
+        font-size: 2.5rem;
+        color: var(--primary-navy);
+        margin-bottom: 1rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+    }
+
+    .upload-card {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .upload-zone {
+        border: 3px dashed var(--border-medium);
+        border-radius: 8px;
+        padding: 4rem 2rem;
+        text-align: center;
+        background: var(--bg-paper);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-zone:hover {
+        border-color: var(--secondary-burgundy);
+        background: #fff5f5;
+    }
+
+    .upload-zone.dragover {
+        border-color: var(--primary-navy);
+        background: #e3f2fd;
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        color: var(--secondary-burgundy);
+        margin-bottom: 1.5rem;
+    }
+
+    .upload-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin-bottom: 0.75rem;
+    }
+
+    .upload-description {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    .supported-formats {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 1rem;
+    }
+
+    .file-info-card {
+        background: #e3f2fd;
+        border: 1px solid #90caf9;
+        border-left: 4px solid var(--primary-navy);
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: none;
+    }
+
+    .file-info-card.show {
+        display: block;
+    }
+
+    .file-info-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .file-details {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+    }
+
+    .file-details p {
+        margin: 0.5rem 0;
+    }
+
+    .file-details strong {
+        color: var(--primary-navy);
+    }
+
+    .btn-upload {
+        padding: 0.9rem 2.5rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        display: inline-block;
+        background: var(--primary-navy);
+        color: white;
+        border-color: var(--primary-navy);
+    }
+
+    .btn-upload:hover {
+        background: #2c5282;
+        border-color: #2c5282;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(26, 54, 93, 0.3);
+    }
+
+    .info-box {
+        background: #fff8dc;
+        border: 1px solid #f0e68c;
+        border-left: 4px solid var(--accent-gold);
+        border-radius: 6px;
+        padding: 1.25rem;
+        margin: 2rem 0;
+    }
+
+    .info-box-title {
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+        color: var(--text-secondary);
+    }
+
+    .info-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--accent-gold);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="upload-section">
+        <!-- Section Header -->
+        <div class="section-header">
+            <h1><i class="fas fa-cloud-upload-alt"></i> Upload Your Dataset</h1>
+            <p>Upload your dataset file to perform genetic algorithm feature selection</p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-title">Drag & Drop Your File Here</div>
+                <div class="upload-description">or click to browse your files</div>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                <div class="supported-formats">
+                    <strong>Supported formats:</strong> CSV, Excel (.xlsx, .xls)
+                </div>
+            </div>
+
+            <!-- File Info Display -->
+            <div class="file-info-card" id="fileInfoCard">
+                <div class="file-info-title">
+                    <i class="fas fa-file-alt"></i> File Information
+                </div>
+                <div class="file-details" id="fileDetails">
+                    <!-- File details will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Info -->
+        <div class="info-box">
+            <div class="info-box-title">
+                <i class="fas fa-info-circle"></i> Dataset Requirements
+            </div>
+            <ul class="info-list">
+                <li>Dataset must contain at least 50 samples</li>
+                <li>Must have a target/label column for classification</li>
+                <li>Feature columns should contain numeric or categorical data</li>
+                <li>Missing values will be handled automatically</li>
+                <li>Maximum file size: 50 MB</li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center" style="margin-top: 2rem;">
+            <a href="/experiment" class="btn-upload" style="background: white; color: var(--primary-navy);">
+                <i class="fas fa-arrow-left"></i> Back to Experiment
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+const fileInfoCard = document.getElementById('fileInfoCard');
+const fileDetails = document.getElementById('fileDetails');
+
+// Click to upload
+uploadZone.addEventListener('click', () => fileInput.click());
+
+// File selection
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+
+function handleFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Show loading
+    fileDetails.innerHTML = '<p style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Uploading and processing file...</p>';
+    fileInfoCard.classList.add('show');
+    
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayFileInfo(data);
+            
+            // Store file info
+            sessionStorage.setItem('uploadedFile', JSON.stringify(data));
+            
+            // Show success and redirect
+            setTimeout(() => {
+                if (confirm('File uploaded successfully! Go to experiment page?')) {
+                    window.location.href = '/experiment';
+                }
+            }, 1000);
+        } else {
+            fileDetails.innerHTML = `<p style="color: #e74c3c;"><strong>Error:</strong> ${data.error}</p>`;
+        }
+    })
+    .catch(error => {
+        fileDetails.innerHTML = `<p style="color: #e74c3c;"><strong>Error:</strong> ${error.message}</p>`;
+    });
+}
+
+function displayFileInfo(data) {
+    const info = `
+        <p><strong>Filename:</strong> ${data.filename}</p>
+        <p><strong>Rows:</strong> ${data.rows} | <strong>Columns:</strong> ${data.columns}</p>
+        <p><strong>Features:</strong> ${data.features.join(', ')}</p>
+        <p style="color: #28a745; margin-top: 1rem;"><i class="fas fa-check-circle"></i> File uploaded successfully!</p>
+    `;
+    fileDetails.innerHTML = info;
+}
+</script>
+{% endblock %}
