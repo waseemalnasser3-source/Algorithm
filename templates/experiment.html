@@ -1,0 +1,806 @@
+{% extends "base.html" %}
+
+{% block title %}Experiment Lab - SmartSelect AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --success-color: #27ae60;
+        --bg-light: #f8f9fa;
+        --bg-white: #ffffff;
+        --text-dark: #2c3e50;
+        --text-muted: #7f8c8d;
+        --border-color: #dfe6e9;
+    }
+
+    body {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+        background: var(--bg-white);
+        border-bottom: 3px solid var(--secondary-color);
+        padding: 30px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 10px;
+    }
+
+    .section-card {
+        background: var(--bg-white);
+        border-radius: 8px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--secondary-color);
+    }
+
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 50px;
+        text-align: center;
+        background: var(--bg-light);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .upload-area:hover {
+        border-color: var(--secondary-color);
+        background: #f0f7ff;
+    }
+
+    .dataset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .dataset-card {
+        background: var(--bg-white);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .dataset-card:hover {
+        border-color: var(--secondary-color);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .dataset-card.selected {
+        border-color: var(--success-color);
+        background: #f0fff4;
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+    }
+
+    .dataset-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: var(--secondary-color);
+    }
+
+    .dataset-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .dataset-info {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .badge-easy {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-hard {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .param-group {
+        margin-bottom: 25px;
+    }
+
+    .param-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .param-value {
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+    }
+
+    .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--border-color);
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--secondary-color);
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--secondary-color);
+        cursor: pointer;
+        border: none;
+    }
+
+    .preset-buttons {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .preset-btn {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-white);
+        color: var(--primary-color);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .preset-btn:hover {
+        border-color: var(--secondary-color);
+        background: #f0f7ff;
+    }
+
+    .btn-run {
+        width: 100%;
+        padding: 18px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-run:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-run:disabled {
+        background: var(--text-muted);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .progress-section {
+        display: none;
+    }
+
+    .progress-section.active {
+        display: block;
+    }
+
+    .progress-bar-wrapper {
+        height: 30px;
+        background: var(--border-color);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 20px 0;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--secondary-color), var(--success-color));
+        transition: width 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .metric-box {
+        background: var(--bg-light);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+
+    .chart-container {
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid var(--secondary-color);
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">
+            <i class="fas fa-flask"></i> Genetic Algorithm Experiment Lab
+        </h1>
+        <p class="page-subtitle">Configure and run feature selection experiments using evolutionary algorithms</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Upload Your Dataset Section -->
+    <div class="section-card">
+        <h2 class="section-title">
+            <i class="fas fa-upload"></i> Upload Your Dataset
+        </h2>
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt fa-4x" style="color: var(--secondary-color); margin-bottom: 15px;"></i>
+            <h4>Drag & Drop Your File Here</h4>
+            <p class="text-muted">or click to browse</p>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+            <p class="text-muted mt-3">
+                <small>Supported formats: CSV, Excel (.xlsx, .xls)</small>
+            </p>
+        </div>
+        
+        <div id="fileInfoSection" style="display: none; margin-top: 20px;">
+            <div class="info-box">
+                <h5><i class="fas fa-file-alt"></i> File Information</h5>
+                <div id="fileInfo"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Or Choose a Sample Dataset -->
+    <div class="section-card">
+        <h2 class="section-title">
+            <i class="fas fa-database"></i> Or Choose a Sample Dataset
+        </h2>
+        <p class="text-muted">Click on any dataset below to use it for testing</p>
+        
+        <div class="dataset-grid" id="datasetSelector">
+            <div class="dataset-card" data-file="iris.csv" data-rows="150" data-cols="5">
+                <div class="dataset-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="dataset-title">Iris Dataset</div>
+                <div class="dataset-info">
+                    <strong>Samples:</strong> 150 | <strong>Features:</strong> 5
+                </div>
+                <span class="badge badge-easy">Easy</span>
+            </div>
+
+            <div class="dataset-card" data-file="breast_cancer.csv" data-rows="569" data-cols="31">
+                <div class="dataset-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="dataset-title">Breast Cancer</div>
+                <div class="dataset-info">
+                    <strong>Samples:</strong> 569 | <strong>Features:</strong> 31
+                </div>
+                <span class="badge badge-medium">Medium</span>
+            </div>
+
+            <div class="dataset-card" data-file="wine.csv" data-rows="178" data-cols="14">
+                <div class="dataset-icon">
+                    <i class="fas fa-wine-glass"></i>
+                </div>
+                <div class="dataset-title">Wine Dataset</div>
+                <div class="dataset-info">
+                    <strong>Samples:</strong> 178 | <strong>Features:</strong> 14
+                </div>
+                <span class="badge badge-medium">Medium</span>
+            </div>
+
+            <div class="dataset-card" data-file="synthetic_high_dim.csv" data-rows="1000" data-cols="51">
+                <div class="dataset-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="dataset-title">High Dimensional</div>
+                <div class="dataset-info">
+                    <strong>Samples:</strong> 1000 | <strong>Features:</strong> 51
+                </div>
+                <span class="badge badge-hard">Hard</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Genetic Algorithm Parameters -->
+    <div class="section-card" id="parametersSection" style="display: none;">
+        <h2 class="section-title">
+            <i class="fas fa-sliders-h"></i> Genetic Algorithm Parameters
+        </h2>
+        
+        <p class="text-muted mb-4">Adjust the parameters for the genetic algorithm</p>
+
+        <!-- Quick Presets -->
+        <h5 class="mb-3">Quick Presets:</h5>
+        <div class="preset-buttons">
+            <button class="preset-btn" onclick="setQuickPreset()">
+                <i class="fas fa-bolt"></i> Super Fast<br>
+                <small class="text-muted">(10s-30s)</small>
+            </button>
+            <button class="preset-btn" onclick="setBalancedPreset()">
+                <i class="fas fa-balance-scale"></i> Balanced<br>
+                <small class="text-muted">(1-2 min)</small>
+            </button>
+            <button class="preset-btn" onclick="setAccuratePreset()">
+                <i class="fas fa-bullseye"></i> Accurate<br>
+                <small class="text-muted">(3-5 min)</small>
+            </button>
+        </div>
+
+        <!-- Parameters -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="param-group">
+                    <div class="param-label">
+                        <span><i class="fas fa-users"></i> Population Size</span>
+                        <span class="param-value" id="popValue">20</span>
+                    </div>
+                    <input type="range" class="slider" id="populationSlider" min="10" max="100" value="20" step="5">
+                    <small class="text-muted">Number of solutions in each generation</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="param-group">
+                    <div class="param-label">
+                        <span><i class="fas fa-sync"></i> Generations</span>
+                        <span class="param-value" id="genValue">30</span>
+                    </div>
+                    <input type="range" class="slider" id="generationsSlider" min="10" max="200" value="30" step="10">
+                    <small class="text-muted">Number of evolution cycles</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="param-group">
+                    <div class="param-label">
+                        <span><i class="fas fa-exchange-alt"></i> Crossover Rate</span>
+                        <span class="param-value" id="crossValue">0.8</span>
+                    </div>
+                    <input type="range" class="slider" id="crossoverSlider" min="0.5" max="1.0" value="0.8" step="0.05">
+                    <small class="text-muted">Probability of crossover between parents</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="param-group">
+                    <div class="param-label">
+                        <span><i class="fas fa-random"></i> Mutation Rate</span>
+                        <span class="param-value" id="mutValue">0.1</span>
+                    </div>
+                    <input type="range" class="slider" id="mutationSlider" min="0.01" max="0.3" value="0.1" step="0.01">
+                    <small class="text-muted">Probability of random mutation</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box mt-3">
+            <strong><i class="fas fa-clock"></i> Estimated Time:</strong> 
+            <span id="estimatedTime">~1-2 minutes</span>
+            <span class="text-muted">(depends on dataset size and parameters)</span>
+        </div>
+
+        <!-- Run Button -->
+        <button class="btn-run" id="launchBtn" onclick="launchExperiment()">
+            <i class="fas fa-play"></i> Run Genetic Algorithm
+        </button>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="section-card progress-section" id="progressSection">
+        <h2 class="section-title">
+            <i class="fas fa-spinner fa-spin"></i> Experiment in Progress
+        </h2>
+        
+        <div class="progress-bar-wrapper">
+            <div class="progress-bar" id="progressBar" style="width: 0%;">0%</div>
+        </div>
+        
+        <p class="text-center text-muted" id="statusText">Initializing genetic algorithm...</p>
+        
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-label">Current Generation</div>
+                <div class="metric-value" id="currentGen">0</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Best Accuracy</div>
+                <div class="metric-value" id="bestAcc">-</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Selected Features</div>
+                <div class="metric-value" id="selectedFeats">-</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Improvement</div>
+                <div class="metric-value" id="improvement">-</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="liveChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+let selectedDataset = null;
+let liveChart = null;
+let uploadedFile = null;
+
+// Upload area handling
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const fileInfoSection = document.getElementById('fileInfoSection');
+const parametersSection = document.getElementById('parametersSection');
+
+uploadArea.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--secondary-color)';
+    uploadArea.style.background = '#f0f7ff';
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = 'var(--border-color)';
+    uploadArea.style.background = 'var(--bg-light)';
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--border-color)';
+    uploadArea.style.background = 'var(--bg-light)';
+    if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+
+function handleFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            uploadedFile = data;
+            displayFileInfo(data);
+            parametersSection.style.display = 'block';
+            parametersSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Upload failed: ' + error);
+    });
+}
+
+function displayFileInfo(data) {
+    const info = `
+        <p><strong>Filename:</strong> ${data.filename}</p>
+        <p><strong>Rows:</strong> ${data.rows} | <strong>Columns:</strong> ${data.columns}</p>
+        <p><strong>Features:</strong> ${data.features.join(', ')}</p>
+    `;
+    document.getElementById('fileInfo').innerHTML = info;
+    fileInfoSection.style.display = 'block';
+}
+
+// Dataset selection
+document.querySelectorAll('.dataset-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.dataset-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedDataset = {
+            file: this.dataset.file,
+            rows: this.dataset.rows,
+            cols: this.dataset.cols
+        };
+        parametersSection.style.display = 'block';
+        parametersSection.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+// Parameter sliders
+document.getElementById('populationSlider').addEventListener('input', e => {
+    document.getElementById('popValue').textContent = e.target.value;
+    updateEstimatedTime();
+});
+
+document.getElementById('generationsSlider').addEventListener('input', e => {
+    document.getElementById('genValue').textContent = e.target.value;
+    updateEstimatedTime();
+});
+
+document.getElementById('crossoverSlider').addEventListener('input', e => {
+    document.getElementById('crossValue').textContent = parseFloat(e.target.value).toFixed(2);
+});
+
+document.getElementById('mutationSlider').addEventListener('input', e => {
+    document.getElementById('mutValue').textContent = parseFloat(e.target.value).toFixed(2);
+});
+
+function updateEstimatedTime() {
+    const popSize = parseInt(document.getElementById('populationSlider').value);
+    const gens = parseInt(document.getElementById('generationsSlider').value);
+    const estimatedSeconds = (popSize * gens) / 100;
+    
+    let timeText;
+    if (estimatedSeconds < 60) {
+        timeText = `~${Math.ceil(estimatedSeconds)} seconds`;
+    } else {
+        timeText = `~${Math.ceil(estimatedSeconds / 60)} minutes`;
+    }
+    
+    document.getElementById('estimatedTime').textContent = timeText;
+}
+
+// Preset functions
+function setQuickPreset() {
+    document.getElementById('populationSlider').value = 15;
+    document.getElementById('populationValue').textContent = '15';
+    document.getElementById('generationsSlider').value = 20;
+    document.getElementById('genValue').textContent = '20';
+    document.getElementById('popValue').textContent = '15';
+    updateEstimatedTime();
+}
+
+function setBalancedPreset() {
+    document.getElementById('populationSlider').value = 30;
+    document.getElementById('generationsSlider').value = 50;
+    document.getElementById('popValue').textContent = '30';
+    document.getElementById('genValue').textContent = '50';
+    updateEstimatedTime();
+}
+
+function setAccuratePreset() {
+    document.getElementById('populationSlider').value = 50;
+    document.getElementById('generationsSlider').value = 100;
+    document.getElementById('popValue').textContent = '50';
+    document.getElementById('genValue').textContent = '100';
+    updateEstimatedTime();
+}
+
+// Initialize live chart
+function initLiveChart() {
+    const ctx = document.getElementById('liveChart').getContext('2d');
+    liveChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Best Fitness',
+                data: [],
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }, {
+                label: 'Average Fitness',
+                data: [],
+                borderColor: '#27ae60',
+                backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: false },
+                x: { title: { display: true, text: 'Generation' } }
+            }
+        }
+    });
+}
+
+// Launch experiment
+async function launchExperiment() {
+    if (!selectedDataset && !uploadedFile) {
+        alert('Please select a dataset or upload a file first!');
+        return;
+    }
+
+    const params = {
+        filepath: uploadedFile ? uploadedFile.filepath : `sample_datasets/${selectedDataset.file}`,
+        population_size: parseInt(document.getElementById('populationSlider').value),
+        generations: parseInt(document.getElementById('generationsSlider').value),
+        crossover_rate: parseFloat(document.getElementById('crossoverSlider').value),
+        mutation_rate: parseFloat(document.getElementById('mutationSlider').value),
+        model_type: 'random_forest',
+        target_column: uploadedFile ? (uploadedFile.target_column || 'target') : 'target'
+    };
+
+    document.getElementById('progressSection').classList.add('active');
+    document.getElementById('progressSection').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('launchBtn').disabled = true;
+    
+    initLiveChart();
+    
+    let progress = 0;
+    const totalGens = params.generations;
+    const progressInterval = setInterval(() => {
+        progress += 1;
+        const percent = Math.min((progress / totalGens) * 100, 90);
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressBar').textContent = Math.round(percent) + '%';
+        document.getElementById('currentGen').textContent = progress;
+        
+        if (progress >= totalGens) {
+            clearInterval(progressInterval);
+        }
+    }, 100);
+
+    try {
+        const response = await fetch('/api/run-ga', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+
+        const result = await response.json();
+        
+        clearInterval(progressInterval);
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('progressBar').textContent = '100%';
+        document.getElementById('statusText').textContent = 'Experiment completed successfully!';
+        
+        if (result.success) {
+            document.getElementById('bestAcc').textContent = (result.accuracy * 100).toFixed(1) + '%';
+            document.getElementById('selectedFeats').textContent = result.n_selected_features;
+            document.getElementById('improvement').textContent = result.feature_reduction_percent.toFixed(1) + '%';
+            
+            updateLiveChart(result.generation_history);
+            
+            sessionStorage.setItem('gaResults', JSON.stringify(result));
+            sessionStorage.setItem('datasetInfo', JSON.stringify({
+                filepath: params.filepath,
+                target_column: params.target_column
+            }));
+            
+            setTimeout(() => {
+                if (confirm('Experiment completed! View detailed results?')) {
+                    window.location.href = '/results-dashboard';
+                }
+            }, 1000);
+        }
+        
+    } catch (error) {
+        clearInterval(progressInterval);
+        alert('Error: ' + error.message);
+    } finally {
+        document.getElementById('launchBtn').disabled = false;
+    }
+}
+
+function updateLiveChart(history) {
+    liveChart.data.labels = Array.from({length: history.best_fitness.length}, (_, i) => i);
+    liveChart.data.datasets[0].data = history.best_fitness;
+    liveChart.data.datasets[1].data = history.avg_fitness;
+    liveChart.update();
+}
+
+// Initialize
+updateEstimatedTime();
+</script>
+{% endblock %}

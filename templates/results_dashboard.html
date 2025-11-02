@@ -1,0 +1,793 @@
+{% extends "base.html" %}
+
+{% block title %}Results Dashboard - SmartSelect AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header-section {
+        background: linear-gradient(135deg, var(--primary-navy) 0%, #2c5282 100%);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .breadcrumb-academic {
+        background: none;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-academic a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+    }
+
+    .breadcrumb-academic a:hover {
+        color: var(--accent-gold);
+    }
+
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+    }
+
+    .metric-icon {
+        font-size: 2.5rem;
+        color: var(--secondary-burgundy);
+        margin-bottom: 1rem;
+    }
+
+    .metric-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--primary-navy);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-title {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .analysis-section {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-light);
+    }
+
+    .section-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--primary-navy), var(--secondary-burgundy));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin: 0;
+    }
+
+    .feature-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .feature-chip {
+        background: var(--bg-paper);
+        border: 1px solid var(--border-medium);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary-navy);
+        transition: all 0.3s ease;
+    }
+
+    .feature-chip:hover {
+        background: var(--primary-navy);
+        color: white;
+        border-color: var(--primary-navy);
+    }
+
+    .chart-wrapper {
+        background: var(--bg-paper);
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .comparison-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+
+    .comparison-table thead th {
+        background: var(--primary-navy);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .comparison-table thead th:first-child {
+        border-top-left-radius: 6px;
+    }
+
+    .comparison-table thead th:last-child {
+        border-top-right-radius: 6px;
+    }
+
+    .comparison-table tbody tr {
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .comparison-table tbody tr:nth-child(even) {
+        background: var(--bg-paper);
+    }
+
+    .comparison-table tbody tr:hover {
+        background: #f0f7ff;
+    }
+
+    .comparison-table tbody tr.highlight {
+        background: #d4edda !important;
+        font-weight: 700;
+    }
+
+    .comparison-table tbody td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .tab-navigation {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-light);
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+        color: var(--primary-navy);
+    }
+
+    .tab-btn.active {
+        color: var(--primary-navy);
+        border-bottom-color: var(--accent-gold);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .btn-action {
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary-action {
+        background: var(--primary-navy);
+        color: white;
+        border-color: var(--primary-navy);
+    }
+
+    .btn-primary-action:hover {
+        background: #2c5282;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(26, 54, 93, 0.3);
+    }
+
+    .btn-secondary-action {
+        background: white;
+        color: var(--primary-navy);
+        border-color: var(--primary-navy);
+    }
+
+    .btn-secondary-action:hover {
+        background: var(--primary-navy);
+        color: white;
+    }
+
+    .alert-box {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-left: 4px solid #28a745;
+        border-radius: 6px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .alert-box h5 {
+        color: #155724;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .alert-box p {
+        color: #155724;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <nav class="breadcrumb-academic">
+            <a href="/">Home</a> / <a href="/experiment">Experiment</a> / <span style="color: white;">Results</span>
+        </nav>
+        <h1 style="font-size: 2.5rem; font-weight: 900; margin: 0;">Experiment Results Dashboard</h1>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Comprehensive analysis and performance metrics</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Success Alert -->
+    <div class="alert-box" id="successAlert" style="display: none;">
+        <h5><i class="fas fa-check-circle"></i> Experiment Completed Successfully</h5>
+        <p>The genetic algorithm has identified the optimal feature subset for your dataset.</p>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="results-grid">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-database"></i></div>
+            <div class="metric-number" id="totalFeatures">-</div>
+            <div class="metric-title">Total Features</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="metric-number" id="selectedFeatures">-</div>
+            <div class="metric-title">Selected Features</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="metric-number" id="accuracyValue">-</div>
+            <div class="metric-title">Model Accuracy</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+            <div class="metric-number" id="reductionValue">-</div>
+            <div class="metric-title">Feature Reduction</div>
+        </div>
+    </div>
+
+    <!-- Selected Features Section -->
+    <div class="analysis-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-list-check"></i>
+            </div>
+            <h2 class="section-title">Selected Features</h2>
+        </div>
+        <div class="feature-chips" id="featuresContainer">
+            <p class="text-muted">Loading results...</p>
+        </div>
+    </div>
+
+    <!-- Evolution Chart -->
+    <div class="analysis-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h2 class="section-title">Fitness Evolution</h2>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="evolutionChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Additional Analysis -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="analysis-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-chart-radar"></i>
+                    </div>
+                    <h2 class="section-title">Performance Metrics</h2>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="analysis-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h2 class="section-title">Feature Distribution</h2>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Section -->
+    <div class="analysis-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h2 class="section-title">Method Comparison</h2>
+        </div>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('table')">
+                <i class="fas fa-table"></i> Table View
+            </button>
+            <button class="tab-btn" onclick="switchTab('chart')">
+                <i class="fas fa-chart-bar"></i> Chart View
+            </button>
+        </div>
+
+        <div id="tableTab" class="tab-content active">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Features</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                        <th>Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonTableBody">
+                    <tr>
+                        <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <i class="fas fa-info-circle" style="font-size: 2rem; color: var(--secondary-burgundy);"></i>
+                            <p style="margin-top: 1rem;">Click "Run Comparison" to compare with traditional methods</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-action btn-primary-action" onclick="runComparison()">
+                    <i class="fas fa-play"></i> Run Comparison
+                </button>
+            </div>
+        </div>
+
+        <div id="chartTab" class="tab-content">
+            <div class="chart-wrapper">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/experiment" class="btn-action btn-primary-action">
+            <i class="fas fa-flask"></i> New Experiment
+        </a>
+        <button class="btn-action btn-secondary-action" onclick="exportResults()">
+            <i class="fas fa-download"></i> Export Results
+        </button>
+        <a href="/" class="btn-action btn-secondary-action">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+let evolutionChart, metricsChart, distributionChart, comparisonChart;
+let gaResults, datasetInfo;
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadResults();
+});
+
+function loadResults() {
+    const gaResultsStr = sessionStorage.getItem('gaResults');
+    const datasetInfoStr = sessionStorage.getItem('datasetInfo');
+    
+    if (!gaResultsStr) {
+        window.location.href = '/experiment';
+        return;
+    }
+    
+    gaResults = JSON.parse(gaResultsStr);
+    datasetInfo = datasetInfoStr ? JSON.parse(datasetInfoStr) : null;
+    
+    displayResults();
+}
+
+function displayResults() {
+    document.getElementById('successAlert').style.display = 'block';
+    
+    document.getElementById('totalFeatures').textContent = gaResults.n_total_features;
+    document.getElementById('selectedFeatures').textContent = gaResults.n_selected_features;
+    document.getElementById('accuracyValue').textContent = (gaResults.accuracy * 100).toFixed(1) + '%';
+    document.getElementById('reductionValue').textContent = gaResults.feature_reduction_percent.toFixed(1) + '%';
+    
+    displayFeatures();
+    createEvolutionChart();
+    createMetricsChart();
+    createDistributionChart();
+}
+
+function displayFeatures() {
+    const container = document.getElementById('featuresContainer');
+    container.innerHTML = '';
+    
+    gaResults.selected_features.forEach((feature, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'feature-chip';
+        chip.textContent = `${index + 1}. ${feature}`;
+        container.appendChild(chip);
+    });
+}
+
+function createEvolutionChart() {
+    const ctx = document.getElementById('evolutionChart').getContext('2d');
+    const generations = Array.from({length: gaResults.generation_history.best_fitness.length}, (_, i) => i);
+    
+    evolutionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: generations,
+            datasets: [{
+                label: 'Best Fitness',
+                data: gaResults.generation_history.best_fitness,
+                borderColor: '#1a365d',
+                backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }, {
+                label: 'Average Fitness',
+                data: gaResults.generation_history.avg_fitness,
+                borderColor: '#742a2a',
+                backgroundColor: 'rgba(116, 42, 42, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: { display: true, text: 'Fitness Score' }
+                },
+                x: {
+                    title: { display: true, text: 'Generation' }
+                }
+            }
+        }
+    });
+}
+
+function createMetricsChart() {
+    const ctx = document.getElementById('metricsChart').getContext('2d');
+    
+    metricsChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'Efficiency'],
+            datasets: [{
+                label: 'Performance',
+                data: [
+                    gaResults.accuracy * 100,
+                    gaResults.accuracy * 100,
+                    gaResults.accuracy * 100,
+                    gaResults.accuracy * 100,
+                    (1 - gaResults.n_selected_features / gaResults.n_total_features) * 100
+                ],
+                borderColor: '#1a365d',
+                backgroundColor: 'rgba(26, 54, 93, 0.2)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function createDistributionChart() {
+    const ctx = document.getElementById('distributionChart').getContext('2d');
+    
+    const selected = gaResults.n_selected_features;
+    const excluded = gaResults.n_total_features - selected;
+    
+    distributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Selected Features', 'Excluded Features'],
+            datasets: [{
+                data: [selected, excluded],
+                backgroundColor: ['#1a365d', '#e2e8f0'],
+                borderColor: ['#1a365d', '#cbd5e0'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    if (tab === 'table') {
+        document.querySelector('.tab-btn:first-child').classList.add('active');
+        document.getElementById('tableTab').classList.add('active');
+    } else {
+        document.querySelector('.tab-btn:last-child').classList.add('active');
+        document.getElementById('chartTab').classList.add('active');
+    }
+}
+
+async function runComparison() {
+    if (!datasetInfo) {
+        alert('Dataset information not available');
+        return;
+    }
+    
+    const tbody = document.getElementById('comparisonTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-navy);"></i>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Running comparison analysis...</p>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        const response = await fetch('/api/comparison', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                filepath: datasetInfo.filepath,
+                target_column: datasetInfo.target_column || 'target',
+                k_features: gaResults.n_selected_features
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayComparisonResults(data.traditional_results);
+        } else {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e74c3c;">Error: ${data.error}</td></tr>`;
+        }
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e74c3c;">Error: ${error.message}</td></tr>`;
+    }
+}
+
+function displayComparisonResults(traditionalResults) {
+    const tbody = document.getElementById('comparisonTableBody');
+    let html = '';
+    
+    html += `
+        <tr class="highlight">
+            <td><strong>Genetic Algorithm</strong></td>
+            <td>${gaResults.n_selected_features}</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>${(gaResults.accuracy * 100).toFixed(2)}%</td>
+            <td>~${(gaResults.generation_history.best_fitness.length * 2).toFixed(1)}</td>
+        </tr>
+    `;
+    
+    const methodNames = {
+        'chi_square': 'Chi-Square Test',
+        'anova_f': 'ANOVA F-Test',
+        'mutual_info': 'Mutual Information',
+        'rf_importance': 'Random Forest Importance'
+    };
+    
+    for (const [key, method] of Object.entries(traditionalResults)) {
+        if (!method.error) {
+            html += `
+                <tr>
+                    <td>${methodNames[key] || key}</td>
+                    <td>${method.n_features}</td>
+                    <td>${(method.accuracy * 100).toFixed(2)}%</td>
+                    <td>${(method.precision * 100).toFixed(2)}%</td>
+                    <td>${(method.recall * 100).toFixed(2)}%</td>
+                    <td>${(method.f1_score * 100).toFixed(2)}%</td>
+                    <td>${method.time.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+    }
+    
+    tbody.innerHTML = html;
+    createComparisonChart(traditionalResults);
+}
+
+function createComparisonChart(traditionalResults) {
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    
+    if (comparisonChart) {
+        comparisonChart.destroy();
+    }
+    
+    const labels = ['Genetic Algorithm'];
+    const accuracyData = [gaResults.accuracy];
+    
+    const methodNames = {
+        'chi_square': 'Chi-Square',
+        'anova_f': 'ANOVA',
+        'mutual_info': 'Mutual Info',
+        'rf_importance': 'Random Forest'
+    };
+    
+    for (const [key, method] of Object.entries(traditionalResults)) {
+        if (!method.error) {
+            labels.push(methodNames[key] || key);
+            accuracyData.push(method.accuracy);
+        }
+    }
+    
+    comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Accuracy',
+                data: accuracyData,
+                backgroundColor: labels.map((_, i) => 
+                    i === 0 ? '#1a365d' : `rgba(116, 42, 42, ${0.8 - i * 0.15})`
+                ),
+                borderColor: labels.map((_, i) => 
+                    i === 0 ? '#1a365d' : '#742a2a'
+                ),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    title: { display: true, text: 'Accuracy Score' }
+                }
+            }
+        }
+    });
+}
+
+function exportResults() {
+    const csv = `Genetic Algorithm Feature Selection Results\n\n` +
+                `Summary Metrics\n` +
+                `Metric,Value\n` +
+                `Selected Features,${gaResults.n_selected_features}\n` +
+                `Total Features,${gaResults.n_total_features}\n` +
+                `Accuracy,${(gaResults.accuracy * 100).toFixed(2)}%\n` +
+                `Feature Reduction,${gaResults.feature_reduction_percent.toFixed(2)}%\n\n` +
+                `Selected Features\n` +
+                gaResults.selected_features.map((f, i) => `${i+1},${f}`).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `ga_results_${new Date().getTime()}.csv`;
+    link.click();
+}
+</script>
+{% endblock %}

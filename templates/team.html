@@ -1,0 +1,594 @@
+{% extends "base.html" %}
+
+{% block title %}Research Team - SmartSelect AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .team-header-section {
+        background: linear-gradient(135deg, var(--primary-navy) 0%, #2c5282 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+    }
+
+    .team-hero-title {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+    }
+
+    .team-hero-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .team-stats {
+        background: white;
+        padding: 2rem 0;
+        margin-bottom: 3rem;
+        border-top: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--primary-navy);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-description {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .member-card {
+        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+    }
+
+    .member-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-3px);
+        border-color: var(--accent-gold);
+    }
+
+    .member-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border-light);
+    }
+
+    .member-avatar-large {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, var(--primary-navy), var(--secondary-burgundy));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .member-info h3 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .member-role {
+        font-size: 1rem;
+        color: var(--secondary-burgundy);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .responsibilities-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-subtitle {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-navy);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .responsibilities-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .responsibilities-list li {
+        padding: 0.75rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .responsibilities-list li:last-child {
+        border-bottom: none;
+    }
+
+    .responsibilities-list li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: var(--accent-gold);
+        font-weight: bold;
+    }
+
+    .tech-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .tech-badge {
+        background: var(--bg-paper);
+        border: 1px solid var(--border-medium);
+        border-radius: 6px;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--primary-navy);
+        font-family: 'Courier New', monospace;
+    }
+
+    .git-pattern {
+        background: var(--primary-navy);
+        color: var(--accent-gold);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+
+    /* Different colors for different members */
+    .member-card:nth-child(1) .member-avatar-large {
+        background: linear-gradient(135deg, #1a365d, #2c5282);
+    }
+
+    .member-card:nth-child(2) .member-avatar-large {
+        background: linear-gradient(135deg, #742a2a, #9c4221);
+    }
+
+    .member-card:nth-child(3) .member-avatar-large {
+        background: linear-gradient(135deg, #2d3748, #4a5568);
+    }
+
+    .member-card:nth-child(4) .member-avatar-large {
+        background: linear-gradient(135deg, #5a67d8, #667eea);
+    }
+
+    .member-card:nth-child(5) .member-avatar-large {
+        background: linear-gradient(135deg, #805ad5, #9f7aea);
+    }
+
+    .member-card:nth-child(6) .member-avatar-large {
+        background: linear-gradient(135deg, #d69e2e, #f6ad55);
+    }
+
+    .member-card:nth-child(7) .member-avatar-large {
+        background: linear-gradient(135deg, #c53030, #e53e3e);
+    }
+
+    .member-card:nth-child(8) .member-avatar-large {
+        background: linear-gradient(135deg, #2c7a7b, #319795);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Team Header -->
+<section class="team-header-section">
+    <div class="container text-center">
+        <h1 class="team-hero-title">Research Team</h1>
+        <p class="team-hero-subtitle">
+            Eight specialized researchers contributing their expertise to develop an advanced 
+            feature selection system using bio-inspired optimization algorithms.
+        </p>
+    </div>
+</section>
+
+<!-- Team Statistics -->
+<section class="team-stats">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-description">Team Members</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-description">Software Modules</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-value">25+</div>
+                    <div class="stat-description">System Components</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-description">Development Weeks</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Members -->
+<div class="container">
+    <!-- Sedra Olabi -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">SO</div>
+            <div class="member-info">
+                <h3>Sedra Olabi</h3>
+                <div class="member-role">
+                    <i class="fas fa-crown"></i> System Architect & Team Lead
+                </div>
+                <small style="color: var(--text-muted);">ID: Sedra_202889</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Design comprehensive system architecture</li>
+                <li>Coordinate and integrate software modules</li>
+                <li>Review code and ensure quality standards</li>
+                <li>Manage Git repository and branching strategy</li>
+                <li>Oversee technical documentation</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">app.py</span>
+            <span class="tech-badge">Architecture</span>
+            <span class="tech-badge">Integration</span>
+            <span class="tech-badge">Documentation</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[ARCH] [REVIEW] [DOCS]</div>
+        </div>
+    </div>
+
+    <!-- Huda Ibrahim Al-Masri -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">HM</div>
+            <div class="member-info">
+                <h3>Huda Ibrahim Al-Masri</h3>
+                <div class="member-role">
+                    <i class="fas fa-database"></i> Data Pipeline Engineer
+                </div>
+                <small style="color: var(--text-muted);">ID: Huda_203500</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Data loading and import operations</li>
+                <li>Support for multiple formats (CSV, Excel, JSON)</li>
+                <li>Data validation and quality assurance</li>
+                <li>Design preprocessing pipeline</li>
+                <li>Handle data processing errors</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">loader.py</span>
+            <span class="tech-badge">validator.py</span>
+            <span class="tech-badge">preprocessor.py</span>
+            <span class="tech-badge">Data Pipeline</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[DATA] [VALID] [FIX]</div>
+        </div>
+    </div>
+
+    <!-- Joud Alrakkad -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">JA</div>
+            <div class="member-info">
+                <h3>Joud Alrakkad</h3>
+                <div class="member-role">
+                    <i class="fas fa-dna"></i> Evolution Engine Developer
+                </div>
+                <small style="color: var(--text-muted);">ID: joud_188166</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Implement genetic algorithm core</li>
+                <li>Chromosome representation and operations</li>
+                <li>Fitness evaluation functions</li>
+                <li>Selection, crossover, and mutation operators</li>
+                <li>Evolution optimization strategies</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">ga_engine.py</span>
+            <span class="tech-badge">chromosome.py</span>
+            <span class="tech-badge">fitness.py</span>
+            <span class="tech-badge">operators.py</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[GA] [OPT] [PERF]</div>
+        </div>
+    </div>
+
+    <!-- Joudi Omar Yousef -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">JY</div>
+            <div class="member-info">
+                <h3>Joudi Omar Yousef</h3>
+                <div class="member-role">
+                    <i class="fas fa-brain"></i> Machine Learning Integration Specialist
+                </div>
+                <small style="color: var(--text-muted);">ID: joudi_194661</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Machine learning model implementations</li>
+                <li>Model training and evaluation</li>
+                <li>Performance metrics calculation</li>
+                <li>Cross-validation strategies</li>
+                <li>Feature importance analysis</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">ml_models.py</span>
+            <span class="tech-badge">evaluator.py</span>
+            <span class="tech-badge">metrics.py</span>
+            <span class="tech-badge">Random Forest</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[ML] [EVAL] [METRICS]</div>
+        </div>
+    </div>
+
+    <!-- Abeer Maen Al-Najim -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">AN</div>
+            <div class="member-info">
+                <h3>Abeer Maen Al-Najim</h3>
+                <div class="member-role">
+                    <i class="fas fa-palette"></i> UI/UX Designer & Frontend Developer
+                </div>
+                <small style="color: var(--text-muted);">ID: abeer_267391</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Design and implement user interfaces</li>
+                <li>Develop HTML/CSS for frontend</li>
+                <li>Visual design and brand identity</li>
+                <li>User experience optimization</li>
+                <li>Implement responsive design</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">templates/</span>
+            <span class="tech-badge">custom.css</span>
+            <span class="tech-badge">UI/UX Design</span>
+            <span class="tech-badge">Responsive</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[UI] [STYLE] [UX]</div>
+        </div>
+    </div>
+
+    <!-- Rania Anwar Abdul Jalil -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">RA</div>
+            <div class="member-info">
+                <h3>Rania Anwar Abdul Jalil</h3>
+                <div class="member-role">
+                    <i class="fas fa-server"></i> API Development Engineer
+                </div>
+                <small style="color: var(--text-muted);">ID: ranai_167554</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Design RESTful API endpoints</li>
+                <li>Implement Flask routes</li>
+                <li>Handle requests and responses</li>
+                <li>Backend business logic</li>
+                <li>API security and validation</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">routes.py</span>
+            <span class="tech-badge">Flask</span>
+            <span class="tech-badge">REST API</span>
+            <span class="tech-badge">Backend</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[API] [BACKEND] [ROUTES]</div>
+        </div>
+    </div>
+
+    <!-- Waseem Bassem Alnasser -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">WA</div>
+            <div class="member-info">
+                <h3>Waseem Bassem Alnasser</h3>
+                <div class="member-role">
+                    <i class="fas fa-chart-bar"></i> Analytics & Comparison Specialist
+                </div>
+                <small style="color: var(--text-muted);">ID: waseem_144601</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Traditional feature selection methods</li>
+                <li>Statistical analysis implementation</li>
+                <li>Performance comparison algorithms</li>
+                <li>Results visualization</li>
+                <li>Benchmarking studies</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">traditional_methods.py</span>
+            <span class="tech-badge">statistical_analysis.py</span>
+            <span class="tech-badge">Chi-Square</span>
+            <span class="tech-badge">ANOVA</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[COMP] [STATS] [BENCH]</div>
+        </div>
+    </div>
+
+    <!-- Arig Omran -->
+    <div class="member-card">
+        <div class="member-header">
+            <div class="member-avatar-large">AO</div>
+            <div class="member-info">
+                <h3>Arig Omran</h3>
+                <div class="member-role">
+                    <i class="fas fa-cog"></i> DevOps & Testing Engineer
+                </div>
+                <small style="color: var(--text-muted);">ID: arig_177722</small>
+            </div>
+        </div>
+        <div class="responsibilities-section">
+            <div class="section-subtitle">
+                <i class="fas fa-tasks"></i> Primary Responsibilities
+            </div>
+            <ul class="responsibilities-list">
+                <li>Setup testing framework</li>
+                <li>Unit and integration tests</li>
+                <li>Continuous integration/deployment</li>
+                <li>Bug tracking and fixing</li>
+                <li>Production deployment</li>
+            </ul>
+        </div>
+        <div class="section-subtitle">
+            <i class="fas fa-code"></i> Technical Focus
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">tests/</span>
+            <span class="tech-badge">requirements.txt</span>
+            <span class="tech-badge">CI/CD</span>
+            <span class="tech-badge">Pytest</span>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="section-subtitle">
+                <i class="fab fa-git-alt"></i> Git Commit Pattern
+            </div>
+            <div class="git-pattern">[TEST] [CI] [FIX] [DEPLOY]</div>
+        </div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="text-center" style="margin: 3rem 0;">
+        <a href="/" class="btn-action btn-primary-action">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
